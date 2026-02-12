@@ -144,16 +144,16 @@ class TodoApp {
         if (this.tasks.length === 0) {
             emptyState.classList.remove('hidden');
             taskList.style.display = 'none';
+            taskCount.textContent = 'No tasks';
         } else {
             emptyState.classList.add('hidden');
             taskList.style.display = 'block';
+            
+            // Update task count
+            const activeTasks = this.tasks.filter(task => !task.completed).length;
+            const totalTasks = this.tasks.length;
+            taskCount.textContent = `${activeTasks} of ${totalTasks} task${totalTasks !== 1 ? 's' : ''}`;
         }
-
-        // Update task count
-        const activeTasks = this.tasks.filter(task => !task.completed).length;
-        const totalTasks = this.tasks.length;
-        taskCount.textContent = `${activeTasks} of ${totalTasks} task${totalTasks !== 1 ? 's' : ''}`;
-
         // Render tasks
         this.tasks.forEach(task => {
             const li = document.createElement('li');
