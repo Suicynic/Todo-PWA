@@ -153,9 +153,9 @@ class TodoApp {
             const activeTasks = this.tasks.filter(task => !task.completed).length;
             const totalTasks = this.tasks.length;
             taskCount.textContent = `${activeTasks} of ${totalTasks} task${totalTasks !== 1 ? 's' : ''}`;
-        }
-        // Render tasks
-        this.tasks.forEach(task => {
+            
+            // Render tasks
+            this.tasks.forEach(task => {
             const li = document.createElement('li');
             li.className = `task-item ${task.completed ? 'completed' : ''}`;
             li.setAttribute('data-id', task.id);
@@ -183,7 +183,8 @@ class TodoApp {
             li.appendChild(span);
             li.appendChild(deleteBtn);
             taskList.appendChild(li);
-        });
+            });
+        }
     }
 }
 
