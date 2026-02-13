@@ -104,6 +104,7 @@ main {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 #taskInput {
@@ -147,6 +148,46 @@ main {
     transform: scale(0.95);
 }
 
+/* Priority select in input */
+#prioritySelect {
+    padding: 14px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    min-width: 100px;
+}
+
+#prioritySelect:focus {
+    border-color: var(--primary-color);
+}
+
+/* Category select and custom input */
+#categorySelect,
+#customCategory {
+    padding: 14px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    min-width: 120px;
+}
+
+#customCategory {
+    display: none; /* Shown via JS */
+}
+
+#categorySelect:focus,
+#customCategory:focus {
+    border-color: var(--primary-color);
+}
+
 /* Stats bar */
 .stats {
     display: flex;
@@ -155,6 +196,8 @@ main {
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 2px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 #taskCount {
@@ -179,6 +222,34 @@ main {
     color: white;
 }
 
+/* Sort button */
+.sort-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sort-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Category filter in stats */
+#categoryFilter {
+    padding: 6px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
 /* Task list */
 .task-list {
     list-style: none;
@@ -193,7 +264,7 @@ main {
     border-radius: 10px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     transition: all 0.3s ease;
     animation: slideIn 0.3s ease;
 }
@@ -222,7 +293,7 @@ main {
 }
 
 .task-text {
-    flex: 1;
+    flex: 1 1 auto;
     font-size: 1rem;
     color: var(--text-primary);
     word-break: break-word;
@@ -257,6 +328,70 @@ main {
 
 .delete-btn:active {
     transform: scale(0.95);
+}
+
+/* Task priorities */
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: auto; /* Align to right of task text */
+    color: white;
+}
+
+.priority-low {
+    background: var(--success-color); /* Green */
+}
+
+.priority-medium {
+    background: #f39c12; /* Yellow */
+}
+
+.priority-high {
+    background: var(--danger-color); /* Red */
+}
+
+body.dark-mode .priority-medium {
+    background: #d68910; /* Darker yellow */
+}
+
+/* Category tags */
+.category-tag {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: white;
+    margin-left: 4px; /* Next to priority badge */
+}
+
+.category-work {
+    background: var(--primary-color); /* Blue */
+}
+
+.category-personal {
+    background: #9b59b6; /* Purple */
+}
+
+.category-shopping {
+    background: #e67e22; /* Orange */
+}
+
+.category-custom {
+    background: #16a085; /* Teal - for customs */
+}
+
+body.dark-mode .category-personal {
+    background: #8e44ad;
+}
+
+body.dark-mode .category-shopping {
+    background: #d35400;
+}
+
+body.dark-mode .category-custom {
+    background: #138d75;
 }
 
 /* Empty state */
@@ -340,7 +475,10 @@ footer {
         flex-direction: column;
     }
     
-    #addBtn {
+    #addBtn,
+    #prioritySelect,
+    #categorySelect,
+    #customCategory {
         width: 100%;
     }
 }
