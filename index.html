@@ -23,7 +23,7 @@
         <header>
             <h1>📝 My Todo List</h1>
             <p class="subtitle">Stay organized and productive</p>
-            <button id="themeToggle" aria-label="Toggle dark mode">🌙</button> <!-- New: Theme toggle -->
+            <button id="themeToggle" aria-label="Toggle dark mode">🌙</button>
         </header>
         
         <main>
@@ -35,6 +35,19 @@
                     aria-label="New task input"
                     autocomplete="off"
                 >
+                <select id="prioritySelect" aria-label="Task priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                </select>
+                <select id="categorySelect" aria-label="Task category"> <!-- New: Category dropdown -->
+                    <option value="" selected>None</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Custom">Custom...</option>
+                </select>
+                <input type="text" id="customCategory" placeholder="Custom category" style="display: none;" aria-label="Custom category input"> <!-- New: Custom input -->
                 <button id="addBtn" aria-label="Add task">
                     <span>+</span>
                 </button>
@@ -42,6 +55,14 @@
             
             <div class="stats">
                 <span id="taskCount">0 tasks</span>
+                <select id="categoryFilter" aria-label="Filter by category"> <!-- New: Filter dropdown -->
+                    <option value="all" selected>All</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Shopping">Shopping</option>
+                    <!-- Custom categories added dynamically -->
+                </select>
+                <button id="sortBtn" class="sort-btn">Sort by Priority</button>
                 <button id="clearCompleted" class="clear-btn">Clear completed</button>
             </div>
             
