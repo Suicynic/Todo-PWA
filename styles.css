@@ -267,6 +267,25 @@ main {
     font-size: 0.85rem;
 }
 
+/* Search input */
+#searchInput {
+    padding: 6px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: 150px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+#searchInput:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
 /* Task list */
 .task-list {
     list-style: none;

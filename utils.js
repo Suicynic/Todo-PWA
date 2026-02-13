@@ -124,3 +124,12 @@ export function getNextDueDate(dueDate, recurrence) {
     }
     return null;
 }
+
+export function filterBySearch(tasks, searchTerm) {
+    if (!searchTerm) return tasks;
+    const lowerTerm = searchTerm.toLowerCase();
+    return tasks.filter(task => 
+        task.text.toLowerCase().includes(lowerTerm) ||
+        (task.category && task.category.toLowerCase().includes(lowerTerm))
+    );
+}

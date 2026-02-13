@@ -1,6 +1,6 @@
 // app.js - Main app logic
 import { Storage } from './storage.js';
-import { applyTheme, updateSortButtonText, setupOnlineDetection, formatDueDate, isOverdue, sortTasks, getNextDueDate } from './utils.js';
+import { applyTheme, updateSortButtonText, setupOnlineDetection, formatDueDate, isOverdue, sortTasks, getNextDueDate, filterBySearch } from './utils.js';
 
 class TodoApp {
     constructor() {
@@ -8,6 +8,7 @@ class TodoApp {
         this.theme = localStorage.getItem('pwa-todo-theme') || 'light';
         this.sortMode = 'dateAdded';
         this.categoryFilter = 'all';
+        this.searchTerm = '';
         this.storage = new Storage();
         this.init();
     }
@@ -86,6 +87,12 @@ class TodoApp {
         // Category filter
         document.getElementById('categoryFilter').addEventListener('change', (e) => {
             this.categoryFilter = e.target.value;
+            this.render();
+        });
+        
+        // Search input
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            this.searchTerm = e.target.value.trim();
             this.render();
         });
     }
@@ -212,8 +219,11 @@ class TodoApp {
         // Clear current list
         taskList.innerHTML = '';
 
-        // Filter tasks
+        // Filter by category
         let filteredTasks = this.tasks.filter(task => this.categoryFilter === 'all' || task.category === this.categoryFilter);
+
+        // Filter by search
+        filteredTasks = filterBySearch(filteredTasks, this.searchTerm);
 
         // Sort filtered tasks
         let sortedTasks = sortTasks(filteredTasks, this.sortMode);
@@ -222,7 +232,7 @@ class TodoApp {
         if (filteredTasks.length === 0) {
             emptyState.classList.remove('hidden');
             taskList.style.display = 'none';
-            taskCount.textContent = this.tasks.length === 0 ? 'No tasks' : 'No tasks in this category';
+            taskCount.textContent = this.tasks.length === 0 ? 'No tasks' : 'No matching tasks';
         } else {
             emptyState.classList.add('hidden');
             taskList.style.display = 'block';
