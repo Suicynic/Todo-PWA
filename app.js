@@ -1,64 +1,41 @@
-// Todo App JavaScript
-// Handles task management, IndexedDB persistence, and UI updates
+// app.js - Main app logic
+import { Storage } from './storage.js';
+import { applyTheme, updateSortButtonText, setupOnlineDetection, formatDueDate, isOverdue, sortTasks, getNextDueDate } from './utils.js';
 
 class TodoApp {
     constructor() {
         this.tasks = [];
-        this.theme = localStorage.getItem('pwa-todo-theme') || 'light'; // Theme still in localStorage (simple)
+        this.theme = localStorage.getItem('pwa-todo-theme') || 'light';
         this.sortMode = 'dateAdded';
         this.categoryFilter = 'all';
-        this.db = null; // IndexedDB reference
+        this.storage = new Storage();
         this.init();
     }
 
     async init() {
         // Open IndexedDB
-        await this.openDB();
+        await this.storage.open();
         
         // Migrate from localStorage if needed
-        await this.migrateFromLocalStorage();
+        await this.storage.migrateFromLocalStorage();
         
         // Load tasks from IndexedDB
-        await this.loadTasks();
+        this.tasks = await this.storage.loadTasks();
         
         // Setup event listeners
         this.setupEventListeners();
         
         // Setup online/offline detection
-        this.setupOnlineDetection();
+        setupOnlineDetection();
         
         // Apply theme
-        this.applyTheme();
+        applyTheme(this.theme);
         
         // Populate category filter
         this.populateCategoryFilter();
         
         // Render initial tasks
         this.render();
-    }
-
-    openDB() { // New: Open IndexedDB
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open('TodoPWA', 1);
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-                this.db = request.result;
-                resolve();
-            };
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                db.createObjectStore('tasks', { keyPath: 'id' });
-            };
-        });
-    }
-
-    async migrateFromLocalStorage() { // New: One-time migration
-        const stored = localStorage.getItem('pwa-todo-tasks');
-        if (stored) {
-            const oldTasks = JSON.parse(stored);
-            await this.saveTasks(oldTasks); // Save to IDB
-            localStorage.removeItem('pwa-todo-tasks'); // Clean up
-        }
     }
 
     setupEventListeners() {
@@ -83,7 +60,7 @@ class TodoApp {
         document.getElementById('themeToggle').addEventListener('click', () => {
             this.theme = this.theme === 'light' ? 'dark' : 'light';
             localStorage.setItem('pwa-todo-theme', this.theme);
-            this.applyTheme();
+            applyTheme(this.theme);
         });
         
         // Sort button
@@ -95,7 +72,7 @@ class TodoApp {
             } else {
                 this.sortMode = 'dateAdded';
             }
-            this.updateSortButtonText();
+            updateSortButtonText(this.sortMode);
             this.render();
         });
         
@@ -113,49 +90,13 @@ class TodoApp {
         });
     }
 
-    applyTheme() {
-        document.body.classList.toggle('dark-mode', this.theme === 'dark');
-        document.getElementById('themeToggle').textContent = this.theme === 'light' ? '🌙' : '☀️';
-    }
-
-    updateSortButtonText() {
-        const btn = document.getElementById('sortBtn');
-        if (this.sortMode === 'priority') {
-            btn.textContent = 'Sort by Priority';
-        } else if (this.sortMode === 'dueDate') {
-            btn.textContent = 'Sort by Due Date';
-        } else {
-            btn.textContent = 'Sort by Date Added';
-        }
-    }
-
-    setupOnlineDetection() {
-        const updateOnlineStatus = () => {
-            const indicator = document.getElementById('offlineIndicator');
-            const statusText = document.getElementById('statusText');
-            
-            if (navigator.onLine) {
-                indicator.classList.remove('offline');
-                statusText.textContent = 'Online';
-            } else {
-                indicator.classList.add('offline');
-                statusText.textContent = 'Offline';
-            }
-        };
-
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        
-        // Initial status
-        updateOnlineStatus();
-    }
-
     async addTask() {
         const input = document.getElementById('taskInput');
         const prioritySelect = document.getElementById('prioritySelect');
         const categorySelect = document.getElementById('categorySelect');
         const customCategory = document.getElementById('customCategory');
         const dueDateInput = document.getElementById('dueDateInput');
+        const recurrenceSelect = document.getElementById('recurrenceSelect');
         const text = input.value.trim();
 
         if (text === '') {
@@ -178,11 +119,12 @@ class TodoApp {
             priority: prioritySelect.value,
             category: category,
             dueDate: dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null,
+            recurrence: recurrenceSelect.value,
             createdAt: new Date().toISOString()
         };
 
         this.tasks.push(task);
-        await this.saveTasks();
+        await this.storage.saveTasks(this.tasks);
         this.populateCategoryFilter();
         this.render();
 
@@ -192,21 +134,39 @@ class TodoApp {
         customCategory.value = '';
         customCategory.style.display = 'none';
         dueDateInput.value = '';
+        recurrenceSelect.value = 'none';
         input.focus();
     }
 
     async deleteTask(id) {
         this.tasks = this.tasks.filter(task => task.id !== id);
-        await this.saveTasks();
+        await this.storage.saveTasks(this.tasks);
         this.populateCategoryFilter();
         this.render();
     }
 
     async toggleTask(id) {
-        const task = this.tasks.find(task => task.id === id);
-        if (task) {
+        const taskIndex = this.tasks.findIndex(task => task.id === id);
+        if (taskIndex !== -1) {
+            const task = this.tasks[taskIndex];
             task.completed = !task.completed;
-            await this.saveTasks();
+            if (task.completed && task.recurrence && task.recurrence !== 'none') {
+                // Generate collision-resistant ID using timestamp + random string
+                const newTask = { 
+                    ...task, 
+                    id: Date.now() + '-' + Math.random().toString(36).substring(2, 11), 
+                    completed: false, 
+                    createdAt: new Date().toISOString() 
+                };
+                const nextDueDate = getNextDueDate(task.dueDate, task.recurrence);
+                if (nextDueDate) {
+                    newTask.dueDate = nextDueDate;
+                    this.tasks.push(newTask);
+                } else {
+                    console.warn('Recurring task completed without a valid next due date; no new occurrence created.', task);
+                }
+            }
+            await this.storage.saveTasks(this.tasks);
             this.render();
         }
     }
@@ -217,38 +177,10 @@ class TodoApp {
 
         if (confirm('Are you sure you want to delete all completed tasks?')) {
             this.tasks = this.tasks.filter(task => !task.completed);
-            await this.saveTasks();
+            await this.storage.saveTasks(this.tasks);
             this.populateCategoryFilter();
             this.render();
         }
-    }
-
-    saveTasks(tasks = this.tasks) { // Updated: Save to IndexedDB (async)
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['tasks'], 'readwrite');
-            const store = transaction.objectStore('tasks');
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = () => reject(transaction.error);
-
-            // Clear existing
-            store.clear();
-
-            // Add all tasks
-            tasks.forEach(task => store.add(task));
-        });
-    }
-
-    loadTasks() { // Updated: Load from IndexedDB (async)
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['tasks'], 'readonly');
-            const store = transaction.objectStore('tasks');
-            const request = store.getAll();
-            request.onsuccess = () => {
-                this.tasks = request.result || [];
-                resolve();
-            };
-            request.onerror = () => reject(request.error);
-        });
     }
 
     populateCategoryFilter() {
@@ -284,23 +216,7 @@ class TodoApp {
         let filteredTasks = this.tasks.filter(task => this.categoryFilter === 'all' || task.category === this.categoryFilter);
 
         // Sort filtered tasks
-        let sortedTasks = [...filteredTasks];
-        if (this.sortMode === 'priority') {
-            const priorityOrder = { high: 3, medium: 2, low: 1 };
-            sortedTasks.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority] || new Date(b.createdAt) - new Date(a.createdAt));
-        } else if (this.sortMode === 'dueDate') {
-            sortedTasks.sort((a, b) => {
-                const aDue = a.dueDate ? new Date(a.dueDate) : new Date('9999-12-31');
-                const bDue = b.dueDate ? new Date(b.dueDate) : new Date('9999-12-31');
-                const aOverdue = !a.completed && a.dueDate && dateFns.isBefore(aDue, new Date());
-                const bOverdue = !b.completed && b.dueDate && dateFns.isBefore(bDue, new Date());
-                if (aOverdue && !bOverdue) return -1;
-                if (!aOverdue && bOverdue) return 1;
-                return dateFns.compareAsc(aDue, bDue) || new Date(b.createdAt) - new Date(a.createdAt);
-            });
-        } else { // dateAdded
-            sortedTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        }
+        let sortedTasks = sortTasks(filteredTasks, this.sortMode);
 
         // Show/hide empty state
         if (filteredTasks.length === 0) {
@@ -321,7 +237,7 @@ class TodoApp {
                 const li = document.createElement('li');
                 li.className = `task-item ${task.completed ? 'completed' : ''} priority-${task.priority}`;
                 if (task.category) li.classList.add(`category-${task.category.toLowerCase().replace(/\s/g, '-')}`);
-                if (!task.completed && task.dueDate && dateFns.isBefore(new Date(task.dueDate), new Date())) {
+                if (isOverdue(task)) {
                     li.classList.add('overdue');
                 }
                 li.setAttribute('data-id', task.id);
@@ -339,9 +255,16 @@ class TodoApp {
                 span.textContent = task.text;
 
                 const dueDateSpan = document.createElement('span');
-                if (task.dueDate) {
+                const formattedDate = formatDueDate(task.dueDate);
+                if (formattedDate) {
                     dueDateSpan.className = 'due-date';
-                    dueDateSpan.textContent = `Due: ${dateFns.format(new Date(task.dueDate), 'MMM d, yyyy')}`;
+                    dueDateSpan.textContent = formattedDate;
+                }
+
+                const recurrenceSpan = document.createElement('span');
+                if (task.recurrence && task.recurrence !== 'none') {
+                    recurrenceSpan.className = 'recurrence-indicator';
+                    recurrenceSpan.textContent = `(${task.recurrence})`;
                 }
 
                 const priorityBadge = document.createElement('span');
@@ -364,6 +287,7 @@ class TodoApp {
                 li.appendChild(checkbox);
                 li.appendChild(span);
                 li.appendChild(dueDateSpan);
+                li.appendChild(recurrenceSpan);
                 li.appendChild(priorityBadge);
                 li.appendChild(categoryTag);
                 li.appendChild(deleteBtn);

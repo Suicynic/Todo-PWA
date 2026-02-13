@@ -1,12 +1,14 @@
 // Service Worker for PWA Todo List
 // Handles caching and offline functionality
 
-const CACHE_NAME = 'pwa-todo-v1';
+const CACHE_NAME = 'pwa-todo-v2';
 const urlsToCache = [
     '/',
     '/index.html',
     '/styles.css',
     '/app.js',
+    '/utils.js',
+    '/storage.js',
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png'
