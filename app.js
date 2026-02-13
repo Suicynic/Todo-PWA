@@ -150,8 +150,8 @@ class TodoApp {
         if (taskIndex !== -1) {
             const task = this.tasks[taskIndex];
             task.completed = !task.completed;
-            if (task.completed && task.recurrence !== 'none') {
-                const newTask = { ...task, id: Date.now(), completed: false, createdAt: new Date().toISOString() };
+            if (task.completed && task.recurrence && task.recurrence !== 'none') {
+                const newTask = { ...task, id: Date.now() + Math.random(), completed: false, createdAt: new Date().toISOString() };
                 newTask.dueDate = getNextDueDate(task.dueDate, task.recurrence);
                 this.tasks.push(newTask);
             }
@@ -244,11 +244,14 @@ class TodoApp {
                 span.textContent = task.text;
 
                 const dueDateSpan = document.createElement('span');
-                dueDateSpan.className = 'due-date';
-                dueDateSpan.textContent = formatDueDate(task.dueDate);
+                const formattedDate = formatDueDate(task.dueDate);
+                if (formattedDate) {
+                    dueDateSpan.className = 'due-date';
+                    dueDateSpan.textContent = formattedDate;
+                }
 
                 const recurrenceSpan = document.createElement('span');
-                if (task.recurrence !== 'none') {
+                if (task.recurrence && task.recurrence !== 'none') {
                     recurrenceSpan.className = 'recurrence-indicator';
                     recurrenceSpan.textContent = `(${task.recurrence})`;
                 }
