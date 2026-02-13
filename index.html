@@ -52,6 +52,12 @@
                 </select>
                 <input type="text" id="customCategory" placeholder="Custom category" style="display: none;" aria-label="Custom category input">
                 <input type="date" id="dueDateInput" aria-label="Due date">
+                <select id="recurrenceSelect" aria-label="Recurrence">
+                    <option value="none">None</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
                 <button id="addBtn" aria-label="Add task">
                     <span>+</span>
                 </button>
@@ -87,7 +93,9 @@
     </div>
     
     <!-- Scripts -->
-    <script src="app.js"></script>
+    <script type="module" src="utils.js"></script>
+    <script type="module" src="storage.js"></script>
+    <script type="module" src="app.js"></script>
     
     <!-- Service Worker Registration -->
     <script>
