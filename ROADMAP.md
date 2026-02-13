@@ -20,20 +20,27 @@ Estimated timelines assume 1-2 hours per phase for implementation/testing, but w
 	•	Metrics for Completion: App loads offline, tasks persist, basic CRUD works.
 	•	Next Steps: No major changes; we’ve got this!
 
-## Phase 2: Enhanced Organization (Next - 1 Week)
-	•	Goal: Improve task management with better sorting and filtering.
-	•	New Features:
-	◦	Task due dates (date picker input, show overdue in red).
-	◦	Recurring tasks (e.g., daily/weekly—store recurrence rule, auto-generate on completion).
-	◦	Search bar (filter tasks by text).
-	◦	Sort options: By due date, alphabetically, or custom (drag-drop reorder).
-	◦	Empty state improvements (motivational tips).
-	•	Enhancements:
-	◦	Upgrade storage to IndexedDB for better handling of larger task lists.
-	◦	Add animations for task add/delete (CSS transitions).
-	•	Tech: Date-fns library (include via CDN for date handling).
-	•	Metrics: Users can set due dates, search finds tasks instantly, sorting persists.
-	•	Potential Challenges: Handling date locales (use user’s timezone—Nashville CST).
+## Phase 2: Enhanced Organization (In Progress - Started Feb 2026)
+•Goal: Improve task management with better sorting and filtering.
+•Status: ✅ IndexedDB storage upgrade complete!
+•New Features:
+◦✅ Task due dates (date picker input, show overdue in red) - Complete
+◦✅ Priority levels (high/medium/low) - Complete
+◦✅ Categories (Work, Personal, Shopping, Custom) - Complete
+◦✅ Sort options: By priority, due date, or date added - Complete
+◦⏳ Recurring tasks (e.g., daily/weekly—store recurrence rule, auto-generate on completion) - Planned
+◦⏳ Search bar (filter tasks by text) - Planned
+◦⏳ Empty state improvements (motivational tips) - Planned
+•Enhancements:
+◦✅ Upgraded storage to IndexedDB for better handling of larger task lists
+◦✅ Migration from localStorage with backward compatibility
+◦✅ Async storage operations (no UI blocking)
+◦✅ Add animations for task add/delete (CSS transitions) - Complete
+•Tech: Date-fns library (included via CDN for date handling), IndexedDB API.
+•Metrics: ✅ IndexedDB stores tasks with ~1GB limit (vs. localStorage's 5MB), async operations don't block UI, migration from localStorage works seamlessly.
+•Next Steps: Add recurring tasks and search functionality.
+
+
 
 ## Phase 3: Productivity Boosters (2-3 Weeks)
 	•	Goal: Add tools for focus and habits, like TickTick’s Pomodoro.
