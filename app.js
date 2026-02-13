@@ -151,7 +151,13 @@ class TodoApp {
             const task = this.tasks[taskIndex];
             task.completed = !task.completed;
             if (task.completed && task.recurrence && task.recurrence !== 'none') {
-                const newTask = { ...task, id: Date.now() + Math.random(), completed: false, createdAt: new Date().toISOString() };
+                // Generate collision-resistant ID using timestamp + random string
+                const newTask = { 
+                    ...task, 
+                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 9), 
+                    completed: false, 
+                    createdAt: new Date().toISOString() 
+                };
                 newTask.dueDate = getNextDueDate(task.dueDate, task.recurrence);
                 this.tasks.push(newTask);
             }

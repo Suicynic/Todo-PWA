@@ -1,6 +1,8 @@
 // utils.js - Shared helper functions
 
 // Fallback date functions if date-fns is not available
+// Note: date-fns is loaded via CDN in index.html. If unavailable (e.g., blocked by ad-blockers),
+// these fallback implementations provide basic date functionality.
 const dateFallback = {
     format: (date, formatStr) => {
         const d = new Date(date);
