@@ -6,7 +6,7 @@ class TodoApp {
         this.tasks = [];
         this.theme = localStorage.getItem('pwa-todo-theme') || 'light';
         this.sortByPriority = false;
-        this.categoryFilter = 'all'; // New: Filter state
+        this.categoryFilter = 'all';
         this.init();
     }
 
@@ -24,7 +24,7 @@ class TodoApp {
         this.applyTheme();
         
         // Populate category filter
-        this.populateCategoryFilter(); // New
+        this.populateCategoryFilter();
         
         // Render initial tasks
         this.render();
@@ -62,14 +62,14 @@ class TodoApp {
             document.getElementById('sortBtn').textContent = this.sortByPriority ? 'Sort by Date' : 'Sort by Priority';
         });
         
-        // Category select for custom (New)
+        // Category select for custom
         const categorySelect = document.getElementById('categorySelect');
         const customCategory = document.getElementById('customCategory');
         categorySelect.addEventListener('change', () => {
             customCategory.style.display = categorySelect.value === 'Custom' ? 'block' : 'none';
         });
         
-        // Category filter (New)
+        // Category filter
         document.getElementById('categoryFilter').addEventListener('change', (e) => {
             this.categoryFilter = e.target.value;
             this.render();
@@ -107,6 +107,7 @@ class TodoApp {
         const prioritySelect = document.getElementById('prioritySelect');
         const categorySelect = document.getElementById('categorySelect');
         const customCategory = document.getElementById('customCategory');
+        const dueDateInput = document.getElementById('dueDateInput'); // New
         const text = input.value.trim();
 
         if (text === '') {
@@ -127,13 +128,14 @@ class TodoApp {
             text: text,
             completed: false,
             priority: prioritySelect.value,
-            category: category, // New: Add category
+            category: category,
+            dueDate: dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null, // New: ISO due date or null
             createdAt: new Date().toISOString()
         };
 
         this.tasks.push(task);
         this.saveTasks();
-        this.populateCategoryFilter(); // Update filter options
+        this.populateCategoryFilter();
         this.render();
 
         // Reset inputs
@@ -141,6 +143,7 @@ class TodoApp {
         categorySelect.value = '';
         customCategory.value = '';
         customCategory.style.display = 'none';
+        dueDateInput.value = ''; // New: Reset date
         input.focus();
     }
 
@@ -192,7 +195,7 @@ class TodoApp {
         }
     }
 
-    populateCategoryFilter() { // New: Dynamically add unique categories to filter
+    populateCategoryFilter() {
         const filterSelect = document.getElementById('categoryFilter');
         const staticOptions = ['all', 'Work', 'Personal', 'Shopping'];
         const uniqueCategories = [...new Set(this.tasks.map(task => task.category).filter(cat => cat && !staticOptions.includes(cat.toLowerCase())))];
@@ -221,7 +224,7 @@ class TodoApp {
         // Clear current list
         taskList.innerHTML = '';
 
-        // Filter tasks (New)
+        // Filter tasks
         let filteredTasks = this.tasks.filter(task => this.categoryFilter === 'all' || task.category === this.categoryFilter);
 
         // Sort filtered tasks
@@ -252,6 +255,9 @@ class TodoApp {
                 const li = document.createElement('li');
                 li.className = `task-item ${task.completed ? 'completed' : ''} priority-${task.priority}`;
                 if (task.category) li.classList.add(`category-${task.category.toLowerCase().replace(/\s/g, '-')}`);
+                if (!task.completed && task.dueDate && dateFns.isBefore(new Date(task.dueDate), new Date())) { // New: Check overdue
+                    li.classList.add('overdue');
+                }
                 li.setAttribute('data-id', task.id);
 
                 const checkbox = document.createElement('input');
@@ -266,11 +272,17 @@ class TodoApp {
                 span.className = 'task-text';
                 span.textContent = task.text;
 
+                const dueDateSpan = document.createElement('span'); // New: Due date display
+                if (task.dueDate) {
+                    dueDateSpan.className = 'due-date';
+                    dueDateSpan.textContent = `Due: ${dateFns.format(new Date(task.dueDate), 'MMM d, yyyy')}`;
+                }
+
                 const priorityBadge = document.createElement('span');
                 priorityBadge.className = `priority-badge priority-${task.priority}`;
                 priorityBadge.textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
 
-                const categoryTag = document.createElement('span'); // New: Category tag
+                const categoryTag = document.createElement('span');
                 if (task.category) {
                     categoryTag.className = `category-tag category-${task.category.toLowerCase().replace(/\s/g, '-')}`;
                     categoryTag.textContent = task.category;
@@ -285,6 +297,7 @@ class TodoApp {
 
                 li.appendChild(checkbox);
                 li.appendChild(span);
+                li.appendChild(dueDateSpan);
                 li.appendChild(priorityBadge);
                 li.appendChild(categoryTag);
                 li.appendChild(deleteBtn);
