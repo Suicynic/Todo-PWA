@@ -5,11 +5,28 @@ A simple, elegant Progressive Web App (PWA) for managing your to-do list. Built 
 ## Features
 
 ✨ **Add and Manage Tasks** - Quickly add, complete, and delete tasks
+📊 **Priority Levels** - Organize tasks by low, medium, or high priority
+🏷️ **Categories** - Sort tasks into Work, Personal, Shopping, or custom categories
+📅 **Due Dates** - Set due dates for your tasks to stay on track
 💾 **Persistent Storage** - Tasks are saved locally and persist across sessions
 📱 **Installable** - Install as a standalone app on any device
 🔌 **Offline Support** - Works without an internet connection
+🌙 **Dark Mode** - Toggle between light and dark themes
 🎨 **Modern UI** - Clean, responsive design with smooth animations
 🌐 **Cross-Platform** - Works on desktop and mobile devices
+
+## Screenshots
+
+### Light Mode
+![Empty State - Light Mode](screenshots/screenshot-empty-light.png)
+*Clean, minimal interface when starting fresh*
+
+![Tasks - Light Mode](screenshots/screenshot-with-tasks-light.png)
+*Tasks organized by priority and category with color coding*
+
+### Dark Mode
+![Tasks - Dark Mode](screenshots/screenshot-with-tasks-dark.png)
+*Easy on the eyes with dark mode support*
 
 ## Getting Started
 
