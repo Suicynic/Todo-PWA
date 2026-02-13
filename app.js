@@ -4,6 +4,7 @@
 class TodoApp {
     constructor() {
         this.tasks = [];
+        this.theme = localStorage.getItem('pwa-todo-theme') || 'light'; // New: Theme state
         this.init();
     }
 
@@ -16,6 +17,9 @@ class TodoApp {
         
         // Setup online/offline detection
         this.setupOnlineDetection();
+        
+        // Apply theme
+        this.applyTheme(); // New: Apply theme on load
         
         // Render initial tasks
         this.render();
@@ -38,6 +42,18 @@ class TodoApp {
         document.getElementById('clearCompleted').addEventListener('click', () => {
             this.clearCompleted();
         });
+        
+        // Theme toggle button (New)
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            this.theme = this.theme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('pwa-todo-theme', this.theme);
+            this.applyTheme();
+        });
+    }
+
+    applyTheme() { // New: Apply theme and update icon
+        document.body.classList.toggle('dark-mode', this.theme === 'dark');
+        document.getElementById('themeToggle').textContent = this.theme === 'light' ? '🌙' : '☀️';
     }
 
     setupOnlineDetection() {
