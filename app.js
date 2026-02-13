@@ -238,10 +238,8 @@ class TodoApp {
                 taskCount.textContent = 'No tasks match search and category filter';
             } else if (this.searchTerm) {
                 taskCount.textContent = 'No tasks match search';
-            } else if (this.categoryFilter !== 'all') {
-                taskCount.textContent = 'No tasks in this category';
             } else {
-                taskCount.textContent = 'No matching tasks';
+                taskCount.textContent = 'No tasks in this category';
             }
         } else {
             emptyState.classList.add('hidden');
