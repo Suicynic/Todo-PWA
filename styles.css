@@ -188,6 +188,23 @@ main {
     border-color: var(--primary-color);
 }
 
+/* Due date input (New) */
+#dueDateInput {
+    padding: 14px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    min-width: 150px;
+}
+
+#dueDateInput:focus {
+    border-color: var(--primary-color);
+}
+
 /* Stats bar */
 .stats {
     display: flex;
@@ -394,6 +411,23 @@ body.dark-mode .category-custom {
     background: #138d75;
 }
 
+/* Due date display (New) */
+.due-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 8px;
+    white-space: nowrap;
+}
+
+.overdue .task-text {
+    color: var(--danger-color) !important;
+}
+
+.overdue .due-date {
+    font-weight: bold;
+    color: var(--danger-color);
+}
+
 /* Empty state */
 .empty-state {
     text-align: center;
@@ -478,7 +512,8 @@ footer {
     #addBtn,
     #prioritySelect,
     #categorySelect,
-    #customCategory {
+    #customCategory,
+    #dueDateInput {
         width: 100%;
     }
 }
