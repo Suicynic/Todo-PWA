@@ -17,11 +17,29 @@
     --border-color: #E1E8ED;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --body-gradient-start: #667eea;
+    --body-gradient-end: #764ba2;
+}
+
+body.dark-mode {
+    --primary-color: #2980b9;
+    --secondary-color: #1f618d;
+    --success-color: #27ae60;
+    --danger-color: #c0392b;
+    --bg-color: #2c3e50;
+    --card-bg: #1c2833;
+    --text-primary: #ecf0f1;
+    --text-secondary: #bdc3c7;
+    --border-color: #34495e;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --body-gradient-start: #2c3e50;
+    --body-gradient-end: #34495e;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--body-gradient-start) 0%, var(--body-gradient-end) 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -45,6 +63,7 @@ header {
     color: white;
     padding: 30px;
     text-align: center;
+    position: relative; /* For absolute positioning of toggle */
 }
 
 header h1 {
@@ -56,6 +75,23 @@ header h1 {
 .subtitle {
     font-size: 0.95rem;
     opacity: 0.9;
+}
+
+/* Theme toggle button */
+#themeToggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.3s ease;
+}
+
+#themeToggle:hover {
+    transform: scale(1.1);
 }
 
 /* Main content */
@@ -78,6 +114,8 @@ main {
     font-size: 1rem;
     transition: all 0.3s ease;
     outline: none;
+    background: var(--card-bg);
+    color: var(--text-primary);
 }
 
 #taskInput:focus {
