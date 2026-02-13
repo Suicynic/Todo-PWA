@@ -61,7 +61,7 @@ npx http-server -p 8000
 Todo-PWA/
 ├── index.html        # Main HTML structure
 ├── styles.css        # Styling and animations
-├── app.js           # Application logic and localStorage handling
+├── app.js           # Application logic and IndexedDB storage handling
 ├── sw.js            # Service worker for offline caching
 ├── manifest.json    # PWA manifest file
 ├── icon-192.png     # App icon (192x192)
@@ -74,14 +74,14 @@ Todo-PWA/
 - **CSS3** - Modern styling with flexbox, animations, and responsive design
 - **JavaScript (ES6+)** - Vanilla JavaScript with classes and modules
 - **Service Workers** - For offline functionality and caching
-- **Web Storage API** - localStorage for data persistence
+- **IndexedDB API** - Async database for scalable data persistence
 - **PWA Manifest** - For app installation and metadata
 
 ## Browser Support
 
 This PWA works on all modern browsers that support:
 - Service Workers
-- localStorage
+- IndexedDB
 - ES6+ JavaScript
 - Web App Manifest
 
