@@ -17,6 +17,9 @@
     
     <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Date-fns CDN for date handling -->
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/dist/date-fns.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -40,14 +43,15 @@
                     <option value="medium" selected>Medium</option>
                     <option value="high">High</option>
                 </select>
-                <select id="categorySelect" aria-label="Task category"> <!-- New: Category dropdown -->
+                <select id="categorySelect" aria-label="Task category">
                     <option value="" selected>None</option>
                     <option value="Work">Work</option>
                     <option value="Personal">Personal</option>
                     <option value="Shopping">Shopping</option>
                     <option value="Custom">Custom...</option>
                 </select>
-                <input type="text" id="customCategory" placeholder="Custom category" style="display: none;" aria-label="Custom category input"> <!-- New: Custom input -->
+                <input type="text" id="customCategory" placeholder="Custom category" style="display: none;" aria-label="Custom category input">
+                <input type="date" id="dueDateInput" aria-label="Due date"> <!-- New: Due date picker -->
                 <button id="addBtn" aria-label="Add task">
                     <span>+</span>
                 </button>
@@ -55,7 +59,7 @@
             
             <div class="stats">
                 <span id="taskCount">0 tasks</span>
-                <select id="categoryFilter" aria-label="Filter by category"> <!-- New: Filter dropdown -->
+                <select id="categoryFilter" aria-label="Filter by category">
                     <option value="all" selected>All</option>
                     <option value="Work">Work</option>
                     <option value="Personal">Personal</option>
