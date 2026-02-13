@@ -8,12 +8,14 @@ A simple, elegant Progressive Web App (PWA) for managing your to-do list. Built 
 📊 **Priority Levels** - Organize tasks by low, medium, or high priority
 🏷️ **Categories** - Sort tasks into Work, Personal, Shopping, or custom categories
 📅 **Due Dates** - Set due dates for your tasks to stay on track
-💾 **Persistent Storage** - Tasks are saved locally and persist across sessions
+🔁 **Recurring Tasks** - Create daily, weekly, or monthly recurring tasks
+💾 **Persistent Storage** - Tasks are saved using IndexedDB with localStorage migration
 📱 **Installable** - Install as a standalone app on any device
 🔌 **Offline Support** - Works without an internet connection
 🌙 **Dark Mode** - Toggle between light and dark themes
 🎨 **Modern UI** - Clean, responsive design with smooth animations
 🌐 **Cross-Platform** - Works on desktop and mobile devices
+🧩 **Modular Architecture** - ES modules for maintainability and scalability
 
 ## Screenshots
 
@@ -61,21 +63,38 @@ npx http-server -p 8000
 Todo-PWA/
 ├── index.html        # Main HTML structure
 ├── styles.css        # Styling and animations
-├── app.js           # Application logic and IndexedDB storage handling
+├── app.js           # Core application logic and TodoApp class
+├── utils.js         # Helper functions (date, sort, theme utilities)
+├── storage.js       # IndexedDB wrapper class for data persistence
 ├── sw.js            # Service worker for offline caching
 ├── manifest.json    # PWA manifest file
 ├── icon-192.png     # App icon (192x192)
 └── icon-512.png     # App icon (512x512)
 ```
 
+### Modular Architecture
+
+The app uses ES modules for better code organization:
+
+- **`app.js`** (295 lines) - TodoApp class with event listeners and render logic
+- **`utils.js`** (119 lines) - Pure helper functions for date/sort/theme operations with fallbacks
+- **`storage.js`** (61 lines) - IndexedDB wrapper with error handling and migration support
+
+This modular structure improves:
+- 🔧 **Maintainability** - Clear separation of concerns
+- 🧪 **Testability** - Individual modules can be tested independently
+- 📈 **Scalability** - Easy to add new features without increasing complexity
+- 👥 **Collaboration** - Multiple developers can work on different modules
+
 ## Technologies Used
 
 - **HTML5** - Semantic markup
 - **CSS3** - Modern styling with flexbox, animations, and responsive design
-- **JavaScript (ES6+)** - Vanilla JavaScript with classes and modules
+- **JavaScript (ES6+)** - Vanilla JavaScript with ES modules for clean architecture
 - **Service Workers** - For offline functionality and caching
-- **IndexedDB API** - Async database for scalable data persistence
+- **IndexedDB API** - Async database for scalable data persistence (~1GB limit)
 - **PWA Manifest** - For app installation and metadata
+- **date-fns** - Date manipulation library (with fallback for offline scenarios)
 
 ## Browser Support
 
