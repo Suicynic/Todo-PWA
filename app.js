@@ -154,12 +154,17 @@ class TodoApp {
                 // Generate collision-resistant ID using timestamp + random string
                 const newTask = { 
                     ...task, 
-                    id: Date.now() + '-' + Math.random().toString(36).substr(2, 9), 
+                    id: Date.now() + '-' + Math.random().toString(36).substring(2, 11), 
                     completed: false, 
                     createdAt: new Date().toISOString() 
                 };
-                newTask.dueDate = getNextDueDate(task.dueDate, task.recurrence);
-                this.tasks.push(newTask);
+                const nextDueDate = getNextDueDate(task.dueDate, task.recurrence);
+                if (nextDueDate) {
+                    newTask.dueDate = nextDueDate;
+                    this.tasks.push(newTask);
+                } else {
+                    console.warn('Recurring task completed without a valid next due date; no new occurrence created.', task);
+                }
             }
             await this.storage.saveTasks(this.tasks);
             this.render();

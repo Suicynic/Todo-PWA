@@ -22,10 +22,24 @@ export class Storage {
 
     async migrateFromLocalStorage() {
         const stored = localStorage.getItem('pwa-todo-tasks');
-        if (stored) {
+        if (!stored) {
+            return;
+        }
+
+        try {
             const oldTasks = JSON.parse(stored);
+
+            // Basic validation: expect an array of tasks before migrating.
+            if (!Array.isArray(oldTasks)) {
+                console.warn('Skipping migration: legacy tasks data is not an array.');
+                return;
+            }
+
             await this.saveTasks(oldTasks);
             localStorage.removeItem('pwa-todo-tasks');
+        } catch (error) {
+            // Do not remove the legacy data on failure to avoid data loss.
+            console.error('Failed to migrate tasks from localStorage:', error);
         }
     }
 

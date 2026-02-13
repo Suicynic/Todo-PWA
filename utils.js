@@ -27,7 +27,17 @@ const dateFallback = {
     },
     addMonths: (date, months) => {
         const result = new Date(date);
+        const desiredDay = result.getDate();
+        // Move to the first of the month before adjusting, to avoid overflow
+        result.setDate(1);
         result.setMonth(result.getMonth() + months);
+        // Clamp the day to the last valid day of the target month
+        const lastDayOfTargetMonth = new Date(
+            result.getFullYear(),
+            result.getMonth() + 1,
+            0
+        ).getDate();
+        result.setDate(Math.min(desiredDay, lastDayOfTargetMonth));
         return result;
     }
 };
