@@ -232,7 +232,17 @@ class TodoApp {
         if (filteredTasks.length === 0) {
             emptyState.classList.remove('hidden');
             taskList.style.display = 'none';
-            taskCount.textContent = this.tasks.length === 0 ? 'No tasks' : 'No matching tasks';
+            if (this.tasks.length === 0) {
+                taskCount.textContent = 'No tasks';
+            } else if (this.searchTerm && this.categoryFilter !== 'all') {
+                taskCount.textContent = 'No tasks match search and category filter';
+            } else if (this.searchTerm) {
+                taskCount.textContent = 'No tasks match search';
+            } else if (this.categoryFilter !== 'all') {
+                taskCount.textContent = 'No tasks in this category';
+            } else {
+                taskCount.textContent = 'No matching tasks';
+            }
         } else {
             emptyState.classList.add('hidden');
             taskList.style.display = 'block';
