@@ -5,7 +5,7 @@ class TodoApp {
     constructor() {
         this.tasks = [];
         this.theme = localStorage.getItem('pwa-todo-theme') || 'light';
-        this.sortByPriority = false;
+        this.sortMode = 'dateAdded'; // New: Sort mode (dateAdded, priority, dueDate)
         this.categoryFilter = 'all';
         this.init();
     }
@@ -55,11 +55,17 @@ class TodoApp {
             this.applyTheme();
         });
         
-        // Sort button
+        // Sort button (Updated: Cycle modes)
         document.getElementById('sortBtn').addEventListener('click', () => {
-            this.sortByPriority = !this.sortByPriority;
+            if (this.sortMode === 'dateAdded') {
+                this.sortMode = 'priority';
+            } else if (this.sortMode === 'priority') {
+                this.sortMode = 'dueDate';
+            } else {
+                this.sortMode = 'dateAdded';
+            }
+            this.updateSortButtonText();
             this.render();
-            document.getElementById('sortBtn').textContent = this.sortByPriority ? 'Sort by Date' : 'Sort by Priority';
         });
         
         // Category select for custom
@@ -79,6 +85,17 @@ class TodoApp {
     applyTheme() {
         document.body.classList.toggle('dark-mode', this.theme === 'dark');
         document.getElementById('themeToggle').textContent = this.theme === 'light' ? '🌙' : '☀️';
+    }
+
+    updateSortButtonText() { // New: Update button based on mode
+        const btn = document.getElementById('sortBtn');
+        if (this.sortMode === 'priority') {
+            btn.textContent = 'Sort by Priority';
+        } else if (this.sortMode === 'dueDate') {
+            btn.textContent = 'Sort by Due Date';
+        } else {
+            btn.textContent = 'Sort by Date Added';
+        }
     }
 
     setupOnlineDetection() {
@@ -107,7 +124,7 @@ class TodoApp {
         const prioritySelect = document.getElementById('prioritySelect');
         const categorySelect = document.getElementById('categorySelect');
         const customCategory = document.getElementById('customCategory');
-        const dueDateInput = document.getElementById('dueDateInput'); // New
+        const dueDateInput = document.getElementById('dueDateInput');
         const text = input.value.trim();
 
         if (text === '') {
@@ -129,7 +146,7 @@ class TodoApp {
             completed: false,
             priority: prioritySelect.value,
             category: category,
-            dueDate: dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null, // New: ISO due date or null
+            dueDate: dueDateInput.value ? new Date(dueDateInput.value).toISOString() : null,
             createdAt: new Date().toISOString()
         };
 
@@ -143,7 +160,7 @@ class TodoApp {
         categorySelect.value = '';
         customCategory.value = '';
         customCategory.style.display = 'none';
-        dueDateInput.value = ''; // New: Reset date
+        dueDateInput.value = '';
         input.focus();
     }
 
@@ -227,12 +244,22 @@ class TodoApp {
         // Filter tasks
         let filteredTasks = this.tasks.filter(task => this.categoryFilter === 'all' || task.category === this.categoryFilter);
 
-        // Sort filtered tasks
+        // Sort filtered tasks (Updated)
         let sortedTasks = [...filteredTasks];
-        if (this.sortByPriority) {
+        if (this.sortMode === 'priority') {
             const priorityOrder = { high: 3, medium: 2, low: 1 };
             sortedTasks.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority] || new Date(b.createdAt) - new Date(a.createdAt));
-        } else {
+        } else if (this.sortMode === 'dueDate') {
+            sortedTasks.sort((a, b) => {
+                const aDue = a.dueDate ? new Date(a.dueDate) : new Date('9999-12-31');
+                const bDue = b.dueDate ? new Date(b.dueDate) : new Date('9999-12-31');
+                const aOverdue = !a.completed && a.dueDate && dateFns.isBefore(aDue, new Date());
+                const bOverdue = !b.completed && b.dueDate && dateFns.isBefore(bDue, new Date());
+                if (aOverdue && !bOverdue) return -1;
+                if (!aOverdue && bOverdue) return 1;
+                return dateFns.compareAsc(aDue, bDue) || new Date(b.createdAt) - new Date(a.createdAt);
+            });
+        } else { // dateAdded
             sortedTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
 
@@ -255,7 +282,7 @@ class TodoApp {
                 const li = document.createElement('li');
                 li.className = `task-item ${task.completed ? 'completed' : ''} priority-${task.priority}`;
                 if (task.category) li.classList.add(`category-${task.category.toLowerCase().replace(/\s/g, '-')}`);
-                if (!task.completed && task.dueDate && dateFns.isBefore(new Date(task.dueDate), new Date())) { // New: Check overdue
+                if (!task.completed && task.dueDate && dateFns.isBefore(new Date(task.dueDate), new Date())) {
                     li.classList.add('overdue');
                 }
                 li.setAttribute('data-id', task.id);
@@ -272,7 +299,7 @@ class TodoApp {
                 span.className = 'task-text';
                 span.textContent = task.text;
 
-                const dueDateSpan = document.createElement('span'); // New: Due date display
+                const dueDateSpan = document.createElement('span');
                 if (task.dueDate) {
                     dueDateSpan.className = 'due-date';
                     dueDateSpan.textContent = `Due: ${dateFns.format(new Date(task.dueDate), 'MMM d, yyyy')}`;
