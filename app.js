@@ -1,18 +1,25 @@
 // Todo App JavaScript
-// Handles task management, localStorage persistence, and UI updates
+// Handles task management, IndexedDB persistence, and UI updates
 
 class TodoApp {
     constructor() {
         this.tasks = [];
-        this.theme = localStorage.getItem('pwa-todo-theme') || 'light';
-        this.sortMode = 'dateAdded'; // New: Sort mode (dateAdded, priority, dueDate)
+        this.theme = localStorage.getItem('pwa-todo-theme') || 'light'; // Theme still in localStorage (simple)
+        this.sortMode = 'dateAdded';
         this.categoryFilter = 'all';
+        this.db = null; // IndexedDB reference
         this.init();
     }
 
-    init() {
-        // Load tasks from localStorage
-        this.loadTasks();
+    async init() {
+        // Open IndexedDB
+        await this.openDB();
+        
+        // Migrate from localStorage if needed
+        await this.migrateFromLocalStorage();
+        
+        // Load tasks from IndexedDB
+        await this.loadTasks();
         
         // Setup event listeners
         this.setupEventListeners();
@@ -28,6 +35,30 @@ class TodoApp {
         
         // Render initial tasks
         this.render();
+    }
+
+    openDB() { // New: Open IndexedDB
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('TodoPWA', 1);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                this.db = request.result;
+                resolve();
+            };
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                db.createObjectStore('tasks', { keyPath: 'id' });
+            };
+        });
+    }
+
+    async migrateFromLocalStorage() { // New: One-time migration
+        const stored = localStorage.getItem('pwa-todo-tasks');
+        if (stored) {
+            const oldTasks = JSON.parse(stored);
+            await this.saveTasks(oldTasks); // Save to IDB
+            localStorage.removeItem('pwa-todo-tasks'); // Clean up
+        }
     }
 
     setupEventListeners() {
@@ -55,7 +86,7 @@ class TodoApp {
             this.applyTheme();
         });
         
-        // Sort button (Updated: Cycle modes)
+        // Sort button
         document.getElementById('sortBtn').addEventListener('click', () => {
             if (this.sortMode === 'dateAdded') {
                 this.sortMode = 'priority';
@@ -87,7 +118,7 @@ class TodoApp {
         document.getElementById('themeToggle').textContent = this.theme === 'light' ? '🌙' : '☀️';
     }
 
-    updateSortButtonText() { // New: Update button based on mode
+    updateSortButtonText() {
         const btn = document.getElementById('sortBtn');
         if (this.sortMode === 'priority') {
             btn.textContent = 'Sort by Priority';
@@ -119,7 +150,7 @@ class TodoApp {
         updateOnlineStatus();
     }
 
-    addTask() {
+    async addTask() {
         const input = document.getElementById('taskInput');
         const prioritySelect = document.getElementById('prioritySelect');
         const categorySelect = document.getElementById('categorySelect');
@@ -135,9 +166,9 @@ class TodoApp {
         let category = categorySelect.value;
         if (category === 'Custom') {
             category = customCategory.value.trim();
-            if (!category) return; // Skip if empty custom
+            if (!category) return;
         } else if (category === '') {
-            category = null; // No category
+            category = null;
         }
 
         const task = {
@@ -151,7 +182,7 @@ class TodoApp {
         };
 
         this.tasks.push(task);
-        this.saveTasks();
+        await this.saveTasks();
         this.populateCategoryFilter();
         this.render();
 
@@ -164,52 +195,60 @@ class TodoApp {
         input.focus();
     }
 
-    deleteTask(id) {
+    async deleteTask(id) {
         this.tasks = this.tasks.filter(task => task.id !== id);
-        this.saveTasks();
+        await this.saveTasks();
         this.populateCategoryFilter();
         this.render();
     }
 
-    toggleTask(id) {
+    async toggleTask(id) {
         const task = this.tasks.find(task => task.id === id);
         if (task) {
             task.completed = !task.completed;
-            this.saveTasks();
+            await this.saveTasks();
             this.render();
         }
     }
 
-    clearCompleted() {
+    async clearCompleted() {
         const hadCompleted = this.tasks.some(task => task.completed);
         if (!hadCompleted) return;
 
         if (confirm('Are you sure you want to delete all completed tasks?')) {
             this.tasks = this.tasks.filter(task => !task.completed);
-            this.saveTasks();
+            await this.saveTasks();
             this.populateCategoryFilter();
             this.render();
         }
     }
 
-    saveTasks() {
-        try {
-            localStorage.setItem('pwa-todo-tasks', JSON.stringify(this.tasks));
-        } catch (e) {
-            console.error('Error saving tasks to localStorage:', e);
-        }
+    saveTasks(tasks = this.tasks) { // Updated: Save to IndexedDB (async)
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['tasks'], 'readwrite');
+            const store = transaction.objectStore('tasks');
+            transaction.oncomplete = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+
+            // Clear existing
+            store.clear();
+
+            // Add all tasks
+            tasks.forEach(task => store.add(task));
+        });
     }
 
-    loadTasks() {
-        try {
-            const stored = localStorage.getItem('pwa-todo-tasks');
-            if (stored) {
-                this.tasks = JSON.parse(stored);
-            }
-        } catch (e) {
-            console.error('Error loading tasks from localStorage:', e);
-            this.tasks = [];
-        }
+    loadTasks() { // Updated: Load from IndexedDB (async)
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction(['tasks'], 'readonly');
+            const store = transaction.objectStore('tasks');
+            const request = store.getAll();
+            request.onsuccess = () => {
+                this.tasks = request.result || [];
+                resolve();
+            };
+            request.onerror = () => reject(request.error);
+        });
     }
 
     populateCategoryFilter() {
@@ -244,7 +283,7 @@ class TodoApp {
         // Filter tasks
         let filteredTasks = this.tasks.filter(task => this.categoryFilter === 'all' || task.category === this.categoryFilter);
 
-        // Sort filtered tasks (Updated)
+        // Sort filtered tasks
         let sortedTasks = [...filteredTasks];
         if (this.sortMode === 'priority') {
             const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -336,8 +375,8 @@ class TodoApp {
 
 // Initialize app when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        new TodoApp();
+    document.addEventListener('DOMContentLoaded', async () => {
+        await new TodoApp();
     });
 } else {
     new TodoApp();
