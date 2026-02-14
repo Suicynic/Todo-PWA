@@ -22,14 +22,14 @@ Estimated timelines assume 1-2 hours per phase for implementation/testing, but w
 
 ## Phase 2: Enhanced Organization (In Progress - Started Feb 2026)
 •Goal: Improve task management with better sorting and filtering.
-•Status: ✅ IndexedDB storage and recurring tasks complete! ✅ Modular architecture implemented!
+•Status: ✅ IndexedDB storage and recurring tasks complete! ✅ Modular architecture implemented! ✅ Search bar complete!
 •New Features:
 ◦✅ Task due dates (date picker input, show overdue in red) - Complete
 ◦✅ Priority levels (high/medium/low) - Complete
 ◦✅ Categories (Work, Personal, Shopping, Custom) - Complete
 ◦✅ Sort options: By priority, due date, or date added - Complete
 ◦✅ Recurring tasks (daily/weekly/monthly—auto-generate on completion) - Complete
-◦⏳ Search bar (filter tasks by text) - Planned
+◦✅ Search bar (filter tasks by text/category in real-time) - Complete
 ◦⏳ Empty state improvements (motivational tips) - Planned
 •Enhancements:
 ◦✅ Upgraded storage to IndexedDB for better handling of larger task lists
@@ -40,8 +40,8 @@ Estimated timelines assume 1-2 hours per phase for implementation/testing, but w
 ◦✅ Date-fns fallback functions for graceful degradation when CDN unavailable
 ◦✅ Collision-resistant task IDs using timestamp + random string
 •Tech: Date-fns library (included via CDN for date handling with fallback), IndexedDB API, ES Modules.
-•Metrics: ✅ IndexedDB stores tasks with ~1GB limit (vs. localStorage's 5MB), async operations don't block UI, migration from localStorage works seamlessly. Modular code structure improves maintainability and scalability for Phase 3 features.
-•Next Steps: Add search bar functionality and empty state improvements.
+•Metrics: ✅ IndexedDB stores tasks with ~1GB limit (vs. localStorage's 5MB), async operations don't block UI, migration from localStorage works seamlessly. Modular code structure improves maintainability and scalability for Phase 3 features. ✅ Search filters tasks in real-time by matching text or category (case-insensitive).
+•Next Steps: Add empty state improvements.
 
 
 
